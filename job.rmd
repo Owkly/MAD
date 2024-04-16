@@ -1,0 +1,147 @@
+# 1 Première analyse et prétraitement des données
+
+## Chargement des données et visualisation
+
+```{r}
+data <- read.csv("original_data/job_postings.csv")
+names(data)
+```
+```{r}
+str(data)
+```
+```{r}
+head(data)
+```
+
+## Filtrage par type de travail
+
+```{r}
+# type d'emploi possible
+print(paste(unique(data$work_type)))
+```
+```{r}
+initial_rows <- nrow(data)
+# Conservation des emplois à temps plein
+data1 <- data[data$work_type == "FULL_TIME", ]
+filtered_rows <- nrow(data1)
+print(paste("Lignes avant le filtrage :", initial_rows))
+print(paste("Lignes retirées :", initial_rows - filtered_rows))
+print(paste("Lignes après filtrage par type de travail (FULL_TIME) :", filtered_rows))
+```
+
+## Filtrage par période de paie
+
+```{r}
+# Période de paie possible
+print(paste(unique(data$pay_period)))
+```
+
+```{r}
+initial_rows <- nrow(data1)
+# Conservation des données avec une période de paie mensuelle ou annuelle
+# D'ailleurs il y'avait beaucoup de données qui était vide "", on a essayé de les remplacer par "MONTHLY" mais on a vu que dans le filtre juste après il les retirés dans tous les cas
+
+# data1$pay_period[data1$pay_period == ""] <- "MONTHLY"
+data2 <- data1[data1$pay_period %in% c("MONTHLY","YEARLY"), ]
+filtered_rows <- nrow(data2)
+print(paste("Lignes avant le filtrage :", initial_rows))
+print(paste("Lignes après filtrage par période de paie (MONTHLY, YEARLY) :", filtered_rows))
+print(paste("Lignes retirées :", initial_rows - filtered_rows))
+```
+## Filtrage par présence de salaire
+
+```{r}
+initial_rows <- nrow(data2)
+# On conserve uniquement les lignes où au moins une information sur le salaire est présente
+# Cela a retiré beaucoup de données mais c'était nécessaire
+data3 <- data2[!is.na(data2$min_salary) | !is.na(data2$med_salary) | !is.na(data2$max_salary), ]
+filtered_rows <- nrow(data3)
+print(paste("Lignes avant le filtrage :", initial_rows))
+print(paste("Lignes après filtrage par présence de salaire :", filtered_rows))
+print(paste("Lignes retirées :", initial_rows - filtered_rows))
+```
+## Simplification et conversion des salaires
+
+```{r}
+# on garde en priorité la médiane (donné ou calculé), sinon le max, puis le min
+simplify_salary <- function(med, max, min) {
+  if (!is.na(med)) {
+    return(med)
+  } else if (!is.na(max) & !is.na(min)) {
+    return((max + min) / 2)
+  } else if (!is.na(max)) {
+    return(max)
+  } else if (!is.na(min)) {
+    return(min)
+  } else {
+    return(NA)
+  }
+}
+
+# Conversion du salaire mensuel en salaire annuel
+convert_salary <- function(salary, period) {
+  if (period == "MONTHLY") {
+    return(salary * 12)
+  } else {
+    return(salary)
+  }
+}
+
+# Application des fonction sur le jeu de données et mes place dans une nouvelle colonne salary
+data3$salary <- mapply(simplify_salary, data3$med_salary, data3$max_salary, data3$min_salary)
+data3$salary <- mapply(convert_salary, data3$salary, data3$pay_period)
+
+# Suppression des colonnes des salaire max, min et med
+data4 <- select(data3, -c(med_salary, max_salary, min_salary, pay_period))
+```
+
+```{r}
+ncol(data)
+ncol(data4)
+```
+
+## Suppression des autres colonnes non nécessaire
+```{r}
+unique(data4$currency)
+unique(data4$compensation_type)
+unique(data4$work_type)
+unique(data4$formatted_work_type)
+```
+```{r}
+data5 <- select(data4, -c(description, skills_desc, job_posting_url, application_url, currency, compensation_type, formatted_work_type, work_type))
+```
+
+```{r}
+names(data5)
+ncol(data5)
+```
+```{r}
+data5
+```
+
+## Remplacement des données NA
+
+```{r}
+# applies : le nombre de personne qui ont postulé, si c'est NA on considère que personne n'a postulé
+data5$applies[is.na(data5$applies)] <- 0
+# remote_allowed : autorise le travail à distance, si c'est NA on considère que c'est pas autorisé dans le contrat
+data5$remote_allowed[is.na(data5$remote_allowed)] <- 0
+# views : le nombre de vues, si c'est NA on considère qu'il y a 0 vues
+data5$views[is.na(data5$views)] <- 0
+# formatted_experience_level : spécifie le niveau d'expérience requis nécessaire pour postuler au poste, si ce n'est pas indiqué on considère que tout le monde peut le faire
+data$formatted_experience_level[data$formatted_experience_level == ""] <- "Entry level"
+```
+
+
+```{r}
+data5
+```
+
+
+```{r}
+unique(data5$formatted_experience_level)
+#
+data$formatted_experience_level[data$formatted_experience_level == ""] <- "Entry level"
+```
+
+
