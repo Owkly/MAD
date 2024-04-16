@@ -108,15 +108,7 @@ unique(data4$work_type)
 unique(data4$formatted_work_type)
 ```
 ```{r}
-data5 <- select(data4, -c(description, skills_desc, job_posting_url, application_url, currency, compensation_type, formatted_work_type, work_type))
-```
-
-```{r}
-names(data5)
-ncol(data5)
-```
-```{r}
-data5
+data5 <- select(data4, -c(description, skills_desc, job_posting_url, application_url,posting_domain, currency, compensation_type, formatted_work_type, work_type))
 ```
 
 ## Remplacement des données NA
@@ -138,10 +130,39 @@ data5
 ```
 
 
+## Traitement des données temporelles
+
 ```{r}
-unique(data5$formatted_experience_level)
-#
-data$formatted_experience_level[data$formatted_experience_level == ""] <- "Entry level"
+data6 <- data5
+# Convertir les temps de millisecondes à des dates lisibles
+data6$original_listed_time <- as.POSIXct(data5$original_listed_time / 1000, origin = "1970-01-01", tz = "UTC")
+data6$expiry <- as.POSIXct(data5$expiry / 1000, origin = "1970-01-01", tz = "UTC")
+data6$closed_time <- as.POSIXct(data5$closed_time / 1000, origin = "1970-01-01", tz = "UTC")
+data6$listed_time <- as.POSIXct(data5$listed_time / 1000, origin = "1970-01-01", tz = "UTC")
 ```
 
+
+```{r}
+# Vérifier le nombre de NA dans chaque sur les temps
+# original_listed_time : indique le moment où l'offre d'emploi a été initialement publiée ou listée pour la première fois
+# expiry : La date à laquelle l'annonce de l'emploi expire et n'acceptera plus de candidatures.
+# closed_time : Le moment où l'annonce de l'emploi a été fermée (peut-être avant l'expiration si le poste a été pourvu).
+# listed_time : indique la date de la dernière mise à jour de l'annonce
+
+na_original_listed_time <- sum(is.na(data6$original_listed_time))
+na_expiry <- sum(is.na(data6$expiry))
+na_closed_time <- sum(is.na(data6$closed_time))
+na_listed_time <- sum(is.na(data6$listed_time))
+
+print(paste("NA in original_listed_time:", na_original_listed_time))
+print(paste("NA in expiry:", na_expiry))
+print(paste("NA in closed_time:", na_closed_time))
+print(paste("NA in listed_time:", na_listed_time))
+```
+closed_time contient des NA
+```{r}
+# On remplace les NA par le 1er janvier 2030
+data6$closed_time[is.na(data6$closed_time)] <- as.numeric(as.POSIXct("2030-01-01", tz = "GMT"))
+data6
+```
 
