@@ -19,8 +19,34 @@ def calculate_salary(row):
     else:
         return row['salary']
 
-
-
+def convert_exp(row):
+    # assert  (row['formatted_experience_level'].isna())or(row['formatted_experience_level'] in ['Entry level', 'Mid-Senior level', 'Associate', 'Director', 'Internship', 'Executive']),print("row['formatted_experience_level']:",row['formatted_experience_level'])
+    if type(row['formatted_experience_level'])!=str:
+        # print("row['formatted_experience_level']:",row['formatted_experience_level'])
+        if pd.isna(row['formatted_experience_level']):
+            return 0
+        else:
+            print("Error!")
+            print("row['formatted_experience_level']:",row['formatted_experience_level'])
+            assert 0
+    elif row['formatted_experience_level'] == 'Internship':
+        return 0
+    elif row['formatted_experience_level'] == 'Entry level':
+        return 1 
+    elif row['formatted_experience_level'] == 'Associate':
+        return 2
+    elif row['formatted_experience_level'] == 'Mid-Senior level':
+        return 3
+    elif row['formatted_experience_level'] == 'Director':
+        return 4
+    elif row['formatted_experience_level'] == 'Executive':
+        return 5
+    else:
+        print("Error!")
+        print("row['formatted_experience_level']:",row['formatted_experience_level'])
+        assert 0
+def cal_esposed_time(row):
+    return(row['expiry']-row['original_listed_date'])
 # Load the CSV file
 file_path = 'original_data/job_postings.csv'
 data = pd.read_csv(file_path)
@@ -29,6 +55,11 @@ data = pd.read_csv(file_path)
 print(data.head())
 print("before processing, data length:", len(data))
 
+print('currency:', data['currency'].unique())
+
+# Drop trash
+data = data.drop(columns=['description','job_posting_url', 'application_url','skills_desc'])
+# data = data.drop(columns=['currency']
 # check all possible 'work_type' in data
 unique_work_type = data['work_type'].unique()
 print("possible work_type:", unique_work_type)
@@ -44,11 +75,11 @@ print("after processing1, data length:", len(data))
 unique_pay_period = data['pay_period'].unique()
 print("possible pay_period:", unique_pay_period)
 
-# Filter the data for rows where 'pay_period' is 'MONTHLY' or 'YEARLY'
+# Filter the data that 'pay_period' is 'MONTHLY' or 'YEARLY'
 data = data[data['pay_period'].isin(['MONTHLY', 'YEARLY'])]
 print("after processing2, data length:", len(data))
 
-# Filter the data for 'salary' slot is filled
+# Filter the data that 'salary' slot is filled
 data = data[~data['max_salary'].isna()| ~data['med_salary'].isna()| ~data['min_salary'].isna()]
 print("after processing3, data length:", len(data))
 
@@ -61,6 +92,20 @@ data = data.drop(columns=['med_salary', 'max_salary', 'min_salary'])
 data['salary'] = data.apply(calculate_salary, axis=1)
 data = data.drop(columns=['pay_period'])
 
+
+
+# check all possible 'formatted_experience_level' in data
+unique_formatted_experience_level = data['formatted_experience_level'].unique()
+print("unique_formatted_experience_level:",unique_formatted_experience_level)
+
+# convert 'formatted_experience_level' to a number
+data['exp_needed']=data.apply(convert_exp, axis=1)
+data = data.drop(columns=['formatted_experience_level'])
+
+
+
+# data['esposed_time']=data.apply(cal_esposed_time, axis=1)
+# data = data.drop(columns=['original_listed_date', 'expiry'])
 
 print(data.head())
 
