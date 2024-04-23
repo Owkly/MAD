@@ -65,5 +65,5 @@ data = data.drop(columns=['pay_period'])
 print(data.head())
 
 # Save the filtered data to a new CSV file
-filtered_file_path = 'job_postings_processed.csv'
+filtered_file_path = 'processed_data/job_postings_processed.csv'
 data.to_csv(filtered_file_path, index=False)
