@@ -1,4 +1,5 @@
-/original_data/
-/processed_data/
+original_data/
+processed_data/
 /.DS_Store
 /.Rhistory
+/.RData

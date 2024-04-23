@@ -3,7 +3,7 @@
 ## Chargement des données et visualisation
 
 ```{r}
-data <- read.csv("original_data/job_postings.csv")
+data <- read.csv("./original_data/job_postings.csv")
 names(data)
 ```
 ```{r}
