@@ -92,7 +92,7 @@ data3$salary <- mapply(simplify_salary, data3$med_salary, data3$max_salary, data
 data3$salary <- mapply(convert_salary, data3$salary, data3$pay_period)
 
 # Suppression des colonnes des salaire max, min et med
-data4 <- select(data3, -c(med_salary, max_salary, min_salary, pay_period))
+data4 <-  dplyr::select(data3, -c(med_salary, max_salary, min_salary, pay_period))
 ```
 
 ```{r}
@@ -108,7 +108,7 @@ unique(data4$work_type)
 unique(data4$formatted_work_type)
 ```
 ```{r}
-data5 <- select(data4, -c(description, skills_desc, job_posting_url, application_url,posting_domain, currency, compensation_type, formatted_work_type, work_type))
+data5 <-  dplyr::select(data4, -c(description, skills_desc, job_posting_url, application_url,posting_domain, currency, compensation_type, formatted_work_type, work_type))
 ```
 
 ## Remplacement des données NA

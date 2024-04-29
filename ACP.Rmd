@@ -1,0 +1,46 @@
+library area
+```{r}
+library(dplyr)
+library(FactoMineR)
+```
+
+read data and select the columns needed
+```{r}
+data = read.csv("processed_data/job_postings_processed.csv")
+head(data)
+```
+```{r}
+selected_data <- select(data, applies, remote_allowed, views, sponsored, salary, exp_needed)
+head(selected_data)
+summary(selected_data)
+boxplot(selected_data)
+pairs(selected_data)
+cov(selected_data)
+```
+```{r}
+res <- PCA(selected_data, ncp = 6)
+#DATA scaled
+```
+
+```{r}
+res$eig
+```
+
+```{r}
+barplot(res$eig[,2])
+```
+```{r}
+plot(res, choix="ind", axes=c(1,2))
+plot(res, choix="var")  # par défaut dans le premier plan principal
+```
+```{r}
+res$var$cor
+res$var$cos2
+res$var$contrib
+```
+corroletion between variables
+```{r}
+summary(res)
+```
+
+

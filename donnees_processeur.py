@@ -58,7 +58,8 @@ print("before processing, data length:", len(data))
 print('currency:', data['currency'].unique())
 
 # Drop trash
-data = data.drop(columns=['description','job_posting_url', 'application_url','skills_desc'])
+data = data.drop(columns=['description','job_posting_url', 'application_url','skills_desc',])
+data = data.drop(columns=['original_listed_time','expiry', 'closed_time','listed_time',])
 # data = data.drop(columns=['currency']
 # check all possible 'work_type' in data
 unique_work_type = data['work_type'].unique()
@@ -102,12 +103,18 @@ print("unique_formatted_experience_level:",unique_formatted_experience_level)
 data['exp_needed']=data.apply(convert_exp, axis=1)
 data = data.drop(columns=['formatted_experience_level'])
 
-
+# check all possible 'application_type' in data
+print("unique_application_type:",data['application_type'].unique())
 
 # data['esposed_time']=data.apply(cal_esposed_time, axis=1)
 # data = data.drop(columns=['original_listed_date', 'expiry'])
 
 print(data.head())
+
+# Fill the empties of the columens applies & remote_allowed & views
+data['applies'] = data['applies'].fillna(value=0)
+data['remote_allowed'] = data['remote_allowed'].fillna(value=0)
+data['views'] = data['views'].fillna(value=0)
 
 # Save the filtered data to a new CSV file
 filtered_file_path = 'processed_data/job_postings_processed.csv'
