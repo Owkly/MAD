@@ -1,0 +1,92 @@
+# ACP
+
+```{r}
+library(dplyr)
+library(FactoMineR)
+```
+
+# chargement des données
+```{r}
+path = file.path(getwd(), "job_processed.csv")
+data <- read.csv(path, header = TRUE)
+
+# conversion des niveau requis en palier de 0 à 5
+data <- data %>%
+  mutate(
+    formatted_experience_level = case_when(
+      formatted_experience_level == "Internship"       ~ 0,
+      formatted_experience_level == "Entry level"      ~ 1,
+      formatted_experience_level == "Mid-Senior level" ~ 2,
+      formatted_experience_level == "Associate"        ~ 3,
+      formatted_experience_level == "Director"         ~ 4,
+      formatted_experience_level == "Executive"        ~ 5,
+    )
+  )
+```
+
+
+```{r}
+data_for_acp <- select(data, applies, views, salary, formatted_experience_level, duration_days)
+head(data_for_acp)
+```
+```{r}
+sub_tab_scaled <- scale(data_for_acp)
+acp <- PCA(sub_tab_scaled)
+```
+```{r}
+cor(sub_tab_scaled)
+```
+
+# combien d'axe garder
+
+```{r}
+acp$eig
+```
+```{r}
+barplot(acp$eig[,2])
+```
+# graphique des individus
+
+```{r}
+plot(acp, choix="ind",axes=c(1,2), select="cos2 0.8")
+```
+```{r}
+plot(acp, choix="var", select = "cos2 0.8")
+```
+```{r}
+data_with_quali <- select(data, applies, views, salary, formatted_experience_level, duration_days, geographic_scope)
+```
+
+```{r}
+res = PCA(data_with_quali, quali.sup = c(6))
+```
+
+```{r}
+
+library(FactoMineR)
+# install.packages("factoextra")
+library(factoextra)
+res <- PCA(data_with_quali, quali.sup = 6)
+
+# Visualisation avec habillage selon la variable qualitative (colonne 4)
+fviz_pca_ind(res, 
+             label = "none",          # Pas de labels sur les points
+             habillage = 6,           # Habillage basé sur la 6ème variable
+             palette = "abc")         # Utiliser une palette de couleurs prédéfinie
+                       # Utiliser des points pour les individus
+
+
+```
+
+
+
+
+```{r}
+summary(acp)
+```
+
+
+
+
+ 
+

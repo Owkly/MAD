@@ -124,12 +124,15 @@ data5 <- select(data4, -c(description, skills_desc, job_posting_url, application
 ```{r}
 # applies : le nombre de personne qui ont postulé, si c'est NA on considère que personne n'a postulé
 data5$applies[is.na(data5$applies)] <- 0
+
 # remote_allowed : autorise le travail à distance, si c'est NA on considère que c'est pas autorisé dans le contrat
 data5$remote_allowed[is.na(data5$remote_allowed)] <- 0
+
 # views : le nombre de vues, si c'est NA on considère qu'il y a 0 vues
 data5$views[is.na(data5$views)] <- 0
+
 # formatted_experience_level : spécifie le niveau d'expérience requis nécessaire pour postuler au poste, si ce n'est pas indiqué on considère que tout le monde peut le faire
-data$formatted_experience_level[data$formatted_experience_level == ""] <- "Entry level"
+data5$formatted_experience_level[data5$formatted_experience_level == ""] <- "Entry level"
 ```
 
 
@@ -142,11 +145,36 @@ data5
 
 ```{r}
 data6 <- data5
-# Convertir les temps de millisecondes à des dates lisibles
-data6$original_listed_time <- as.POSIXct(data5$original_listed_time / 1000, origin = "1970-01-01", tz = "UTC")
-data6$expiry <- as.POSIXct(data5$expiry / 1000, origin = "1970-01-01", tz = "UTC")
-data6$closed_time <- as.POSIXct(data5$closed_time / 1000, origin = "1970-01-01", tz = "UTC")
-data6$listed_time <- as.POSIXct(data5$listed_time / 1000, origin = "1970-01-01", tz = "UTC")
+
+data6 <- data6 %>%
+  mutate(
+    # Convertir les temps de millisecondes à des dates lisibles
+    original_listed_time = as.POSIXct(original_listed_time / 1000, origin = "1970-01-01", tz = "UTC"),
+    expiry = as.POSIXct(expiry / 1000, origin = "1970-01-01", tz = "UTC"),
+    closed_time = as.POSIXct(closed_time / 1000, origin = "1970-01-01", tz = "UTC"),
+    listed_time = as.POSIXct(listed_time / 1000, origin = "1970-01-01", tz = "UTC")
+  ) %>%
+  mutate(
+    # Ajuster les dates à 00:00:00 pour être à 00:00:01
+    original_listed_time = if_else(format(original_listed_time, "%H:%M:%S") == "00:00:00",
+                                   original_listed_time + seconds(1),
+                                   original_listed_time),
+    expiry = if_else(format(expiry, "%H:%M:%S") == "00:00:00",
+                     expiry + seconds(1),
+                     expiry),
+    closed_time = if_else(format(closed_time, "%H:%M:%S") == "00:00:00",
+                          closed_time + seconds(1),
+                          closed_time),
+    listed_time = if_else(format(listed_time, "%H:%M:%S") == "00:00:00",
+                          listed_time + seconds(1),
+                          listed_time)
+  ) %>%
+  mutate(
+    # Calculer la durée en jours entre la date de liste et la date d'expiration
+    duration_days = as.numeric(difftime(expiry, original_listed_time, units = "days"))
+  )
+
+
 ```
 
 
@@ -170,9 +198,10 @@ print(paste("NA in listed_time:", na_listed_time))
 closed_time contient des NA
 ```{r}
 # On remplace les NA par le 1er janvier 2030
-data6$closed_time[is.na(data6$closed_time)] <- as.numeric(as.POSIXct("2030-01-01", tz = "GMT"))
-head(data6)
+data6$closed_time[is.na(data6$closed_time)] <- as.POSIXct("2030-01-01 00:00:01", tz = "GMT")
+print(data6)
 ```
+
 
 
 # Conversion des int en booléens
@@ -264,4 +293,8 @@ table(data8$geographic_scope)
 ```{r}
 write.csv(data8, "job_processed.csv", row.names = FALSE)
 ```
+
+
+
+
 
