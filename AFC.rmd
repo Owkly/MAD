@@ -1,0 +1,72 @@
+```{r}
+library(dplyr)
+library(FactoMineR)
+# install.packages("factoextra")
+library(factoextra)
+```
+
+# chargement des données
+```{r}
+path = file.path(getwd(), "job_processed.csv")
+data <- read.csv(path, header = TRUE)
+
+data$formatted_experience_level <- as.factor(data$formatted_experience_level)
+data$district <- as.factor(data$district)
+data$region <- as.factor(data$district)
+
+print(data)
+```
+
+
+```{r}
+# Calcul de la table de contingence
+data_afc <- xtabs(~ formatted_experience_level + district, data = data)
+print(data_afc)
+
+# Barplot montrant la proportion d'offres d'emploi dans chaque district par rapport au total des offres
+barplot(apply(data_afc,2,sum)/sum(data_afc),las=3) # selon le district
+barplot(apply(data_afc,1,sum)/sum(data_afc),las=3) # selon l'experience
+
+  # apply(data,1,sum)  # somme les les éléments d'une pour chaque ligne
+  # apply(data,2,sum)  # somme les éléments d'un colonne pour chaque colonne
+```
+- Sur le premier barplot les offres d'emploi dans le district de San Francisco sont beaucoup plus nombreuses par rapport aux autres districts. Cela pourrait indiquer un marché de l'emploi plus actif ou une plus grande concentration d'entreprises dans cette région.
+
+- Puis sur Le deuxième barplot on voit que les postes de niveau "Entry level" et "Senior level" sont les plus fréquents, ce qui peut indiquer une demande élevée pour des positions de début de carrière et des rôles plus avancés.
+
+```{r}
+# test d'indépendance entre les var qualitatif
+# HO: X et Y indépendants
+# pvalues <= 0.05, preuve suffisante pour rejeter H0
+# on rejette H0
+# donc X et Y ne sont pas indépents avec une haute intervalle de confiance
+chi_test <- chisq.test(data_afc)
+print(chi_test)
+```
+
+donc les deux variables district et formatted_experience_level sont dépendantes
+
+```{r}
+res=CA(data_afc)
+summary(res)
+```
+
+```{r}
+res$eig[,2]
+# Barplot des valeurs propres pour déterminer le nombre d'axes à retenir
+barplot(res$eig[, 2], main = "Pourcentage de la variance expliquée par axe", 
+        xlab = "Axes", ylab = "Pourcentage", las = 2)
+```
+on va garder 2 axes car les axes Dim 1 et Dim 2 réprésente à peu près 80%
+
+```{r}
+plot(res, invisible="row")
+plot(res, invisible="row", selectCol="cos2 0.8")
+plot(res, invisible="row", selectCol="contrib 4")
+```
+```{r}
+res$col$contrib
+```
+
+
+
