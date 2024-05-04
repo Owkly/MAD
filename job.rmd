@@ -1,9 +1,16 @@
-# 1 Première analyse et prétraitement des données
+# 1 Visualisation et prétraitement des données
+
+```{r}
+getwd()
+library(dplyr) 
+library(stringr)
+```
 
 ## Chargement des données et visualisation
 
 ```{r}
-data <- read.csv("original_data/job_postings.csv")
+path = file.path(getwd(), "original_data/job_postings.csv")
+data <- read.csv(path, header = TRUE)
 names(data)
 ```
 ```{r}
@@ -48,6 +55,7 @@ print(paste("Lignes avant le filtrage :", initial_rows))
 print(paste("Lignes après filtrage par période de paie (MONTHLY, YEARLY) :", filtered_rows))
 print(paste("Lignes retirées :", initial_rows - filtered_rows))
 ```
+
 ## Filtrage par présence de salaire
 
 ```{r}
@@ -163,6 +171,97 @@ closed_time contient des NA
 ```{r}
 # On remplace les NA par le 1er janvier 2030
 data6$closed_time[is.na(data6$closed_time)] <- as.numeric(as.POSIXct("2030-01-01", tz = "GMT"))
-data6
+head(data6)
+```
+
+
+# Conversion des int en booléens
+conversion des variables (booléens mais qui était représenter en int) en booléens
+```{r}
+data7 <- data6
+data7$sponsored <- as.logical(data7$sponsored)
+data7$remote_allowed <- as.logical(data7$remote_allowed)
+str(data7)
+```
+
+# Catégorisation des lieux
+
+```{r}
+data8 <- data7 %>%
+  mutate(geographic_scope = case_when(
+    # 1
+    str_detect(location, "CT|ME|MA|NH|RI|VT") ~ "Boston",
+    str_detect(location, "NY|NJ|PR|VI") ~ "New York City",
+    str_detect(location, "DE|DC|MD|PA|VA|WV") ~ "Philadelphia",
+    str_detect(location, "AL|FL|GA|KY|MS|NC|SC|TN") ~ "Atlanta",
+    str_detect(location, "IL|IN|MN|MI|OH|WI") ~ "Chicago",
+    str_detect(location, "AR|LA|NM|OK|TX") ~ "Dallas",
+    str_detect(location, "IA|KS|MO|NE") ~ "Kansas City",
+    str_detect(location, "CO|MT|ND|SD|UT|WY") ~ "Denver",
+    str_detect(location, "AZ|CA|HI|NV|GU|AS") ~ "San Francisco",
+    str_detect(location, "AK|ID|OR|WA") ~ "Seattle",
+    grepl("United States", location, ignore.case = TRUE) ~ "National",
+    
+    
+    #2
+    str_detect(location, "Connecticut|Maine|Massachusetts|New Hampshire|Rhode Island|Vermont") ~ "Boston",
+    str_detect(location, "New York|New Jersey|Puerto Rico|Virgin Islands") ~ "New York City",
+    str_detect(location, "Delaware|District of Columbia|Maryland|Pennsylvania|Virginia|West Virginia") ~ "Philadelphia",
+    str_detect(location, "Alabama|Florida|Georgia|Kentucky|Mississippi|North Carolina|South Carolina|Tennessee") ~ "Atlanta",
+    str_detect(location, "Illinois|Indiana|Minnesota|Michigan|Ohio|Wisconsin") ~ "Chicago",
+    str_detect(location, "Arkansas|Louisiana|New Mexico|Oklahoma|Texas") ~ "Dallas",
+    str_detect(location, "Iowa|Kansas|Missouri|Nebraska") ~ "Kansas City",
+    str_detect(location, "Colorado|Montana|North Dakota|South Dakota|Utah|Wyoming") ~ "Denver",
+    str_detect(location, "Arizona|California|Hawaii|Nevada|Guam|American Samoa") ~ "San Francisco",
+    str_detect(location, "Alaska|Idaho|Oregon|Washington") ~ "Seattle",
+    
+    
+    # 3
+    str_detect(location, "Boston") ~ "Boston",
+    str_detect(location, "New York City") ~ "New York City",
+    str_detect(location, "Philadelphia") ~ "Philadelphia",
+    str_detect(location, "Atlanta") ~ "Atlanta",
+    str_detect(location, "Chicago") ~ "Chicago",
+    str_detect(location, "Dallas") ~ "Dallas",
+    str_detect(location, "Kansas City") ~ "Kansas City",
+    str_detect(location, "Denver") ~ "Denver",
+    str_detect(location, "San Francisco") ~ "San Francisco",
+    str_detect(location, "Seattle") ~ "Seattle",
+
+
+    # 4
+    str_detect(location, "Bangor") ~ "Boston",
+    str_detect(location, "Hartford|Scranton|Buffalo-Niagara|Erie|Buffalo") ~ "New York City",
+    str_detect(location, "Harrisburg|Richmond") ~ "Philadelphia",
+    str_detect(location, "Chattanooga|Macon|Nashville|Asheville|Raleigh-Durham|New Orleans|Miami|Tampa|Jacksonville|Orlando|Pensacola|Charlotte|Greensboro|Memphis|Knoxville|Mobile|Bowling Green|Johnson City|Palm Bay-Melbourne-Titusville|Crestview-Fort Walton Beach-Destin|Tallahassee") ~ "Atlanta",
+    str_detect(location, "Detroit|Cincinnati|Milwaukee|Grand Rapids|Minneapolis|Pittsburgh|Cleveland|Fargo|Urbana-Champaign|Bloomington|Louisville") ~ "Chicago",
+    str_detect(location, "McAllen|Houston|Beaumont") ~ "Dallas",
+    str_detect(location, "Omaha|Des Moines|St. Louis|Sioux Falls") ~ "Kansas City",
+    str_detect(location, "Reno|Pueblo|Fort Collins|Salt Lake City") ~ "Denver",
+    str_detect(location, "Sacramento|Yuma|Albuquerque|Los Angeles|San Diego|Eugene-Springfield|Phoenix|Las Vegas") ~ "San Francisco",
+
+    
+    # 5
+    TRUE ~ "Other"
+  ))
+
+sum(table(data8$geographic_scope))
+table(data8$geographic_scope)
+```
+
+```{r}
+  # Vérifie s'il y a toujours des location qui n'ont pas été catégoriser
+  other <- filter(data8, geographic_scope == "Other")
+  unique(other$location)
+  
+  # suppression de la colonne location
+  data8 <- select(data8, -location)
+  head(data8)
+```
+
+
+# Enregistrement du dataframe traité dans un fichier CSV
+```{r}
+write.csv(data8, "job_processed.csv", row.names = FALSE)
 ```
 
