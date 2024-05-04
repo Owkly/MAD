@@ -4,6 +4,8 @@
 getwd()
 library(dplyr) 
 library(stringr)
+#install.packages("lubridate")
+library(lubridate)
 ```
 
 ## Chargement des données et visualisation
@@ -215,83 +217,149 @@ str(data7)
 
 # Catégorisation des lieux
 
+# Agency administrative regions
+```{r}
+# data8 <- data7 %>%
+#   mutate(Region = case_when(
+#     # 1
+#     str_detect(location, "CT|ME|MA|NH|RI|VT") ~ "Boston",
+#     str_detect(location, "NY|NJ|PR|VI") ~ "New York City",
+#     str_detect(location, "DE|DC|MD|PA|VA|WV") ~ "Philadelphia",
+#     str_detect(location, "AL|FL|GA|KY|MS|NC|SC|TN") ~ "Atlanta",
+#     str_detect(location, "IL|IN|MN|MI|OH|WI") ~ "Chicago",
+#     str_detect(location, "AR|LA|NM|OK|TX") ~ "Dallas",
+#     str_detect(location, "IA|KS|MO|NE") ~ "Kansas City",
+#     str_detect(location, "CO|MT|ND|SD|UT|WY") ~ "Denver",
+#     str_detect(location, "AZ|CA|HI|NV|GU|AS") ~ "San Francisco",
+#     str_detect(location, "AK|ID|OR|WA") ~ "Seattle",
+#     grepl("United States", location, ignore.case = TRUE) ~ "All",
+#     
+#     
+#     #2
+#     str_detect(location, "Connecticut|Maine|Massachusetts|New Hampshire|Rhode Island|Vermont") ~ "Boston",
+#     str_detect(location, "New York|New Jersey|Puerto Rico|Virgin Islands") ~ "New York City",
+#     str_detect(location, "Delaware|District of Columbia|Maryland|Pennsylvania|Virginia|West Virginia") ~ "Philadelphia",
+#     str_detect(location, "Alabama|Florida|Georgia|Kentucky|Mississippi|North Carolina|South Carolina|Tennessee") ~ "Atlanta",
+#     str_detect(location, "Illinois|Indiana|Minnesota|Michigan|Ohio|Wisconsin") ~ "Chicago",
+#     str_detect(location, "Arkansas|Louisiana|New Mexico|Oklahoma|Texas") ~ "Dallas",
+#     str_detect(location, "Iowa|Kansas|Missouri|Nebraska") ~ "Kansas City",
+#     str_detect(location, "Colorado|Montana|North Dakota|South Dakota|Utah|Wyoming") ~ "Denver",
+#     str_detect(location, "Arizona|California|Hawaii|Nevada|Guam|American Samoa") ~ "San Francisco",
+#     str_detect(location, "Alaska|Idaho|Oregon|Washington") ~ "Seattle",
+#     
+#     
+#     # 3
+    # str_detect(location, "Boston") ~ "Boston",
+    # str_detect(location, "New York City") ~ "New York City",
+    # str_detect(location, "Philadelphia") ~ "Philadelphia",
+    # str_detect(location, "Atlanta") ~ "Atlanta",
+    # str_detect(location, "Chicago") ~ "Chicago",
+    # str_detect(location, "Dallas") ~ "Dallas",
+    # str_detect(location, "Kansas City") ~ "Kansas City",
+    # str_detect(location, "Denver") ~ "Denver",
+    # str_detect(location, "San Francisco") ~ "San Francisco",
+    # str_detect(location, "Seattle") ~ "Seattle",
+# 
+# 
+#     # 4
+#     str_detect(location, "Bangor") ~ "Boston",
+#     str_detect(location, "Hartford|Scranton|Buffalo-Niagara|Erie|Buffalo") ~ "New York City",
+#     str_detect(location, "Harrisburg|Richmond") ~ "Philadelphia",
+#     str_detect(location, "Chattanooga|Macon|Nashville|Asheville|Raleigh-Durham|New Orleans|Miami|Tampa|Jacksonville|Orlando|Pensacola|Charlotte|Greensboro|Memphis|Knoxville|Mobile|Bowling Green|Johnson City|Palm Bay-Melbourne-Titusville|Crestview-Fort Walton Beach-Destin|Tallahassee") ~ "Atlanta",
+#     str_detect(location, "Detroit|Cincinnati|Milwaukee|Grand Rapids|Minneapolis|Pittsburgh|Cleveland|Fargo|Urbana-Champaign|Bloomington|Louisville") ~ "Chicago",
+#     str_detect(location, "McAllen|Houston|Beaumont") ~ "Dallas",
+#     str_detect(location, "Omaha|Des Moines|St. Louis|Sioux Falls") ~ "Kansas City",
+#     str_detect(location, "Reno|Pueblo|Fort Collins|Salt Lake City") ~ "Denver",
+#     str_detect(location, "Sacramento|Yuma|Albuquerque|Los Angeles|San Diego|Eugene-Springfield|Phoenix|Las Vegas") ~ "San Francisco",
+# 
+#     
+#     # 5
+#     TRUE ~ "Other"
+#   ))
+# 
+# sum(table(data8$region))
+# table(data8$region)
+```
+
+# District (Réserves fédérales des États-Unis)
 ```{r}
 data8 <- data7 %>%
-  mutate(geographic_scope = case_when(
-    # 1
-    str_detect(location, "CT|ME|MA|NH|RI|VT") ~ "Boston",
-    str_detect(location, "NY|NJ|PR|VI") ~ "New York City",
-    str_detect(location, "DE|DC|MD|PA|VA|WV") ~ "Philadelphia",
-    str_detect(location, "AL|FL|GA|KY|MS|NC|SC|TN") ~ "Atlanta",
-    str_detect(location, "IL|IN|MN|MI|OH|WI") ~ "Chicago",
-    str_detect(location, "AR|LA|NM|OK|TX") ~ "Dallas",
-    str_detect(location, "IA|KS|MO|NE") ~ "Kansas City",
-    str_detect(location, "CO|MT|ND|SD|UT|WY") ~ "Denver",
-    str_detect(location, "AZ|CA|HI|NV|GU|AS") ~ "San Francisco",
-    str_detect(location, "AK|ID|OR|WA") ~ "Seattle",
-    grepl("United States", location, ignore.case = TRUE) ~ "National",
-    
-    
-    #2
-    str_detect(location, "Connecticut|Maine|Massachusetts|New Hampshire|Rhode Island|Vermont") ~ "Boston",
-    str_detect(location, "New York|New Jersey|Puerto Rico|Virgin Islands") ~ "New York City",
-    str_detect(location, "Delaware|District of Columbia|Maryland|Pennsylvania|Virginia|West Virginia") ~ "Philadelphia",
-    str_detect(location, "Alabama|Florida|Georgia|Kentucky|Mississippi|North Carolina|South Carolina|Tennessee") ~ "Atlanta",
-    str_detect(location, "Illinois|Indiana|Minnesota|Michigan|Ohio|Wisconsin") ~ "Chicago",
-    str_detect(location, "Arkansas|Louisiana|New Mexico|Oklahoma|Texas") ~ "Dallas",
-    str_detect(location, "Iowa|Kansas|Missouri|Nebraska") ~ "Kansas City",
-    str_detect(location, "Colorado|Montana|North Dakota|South Dakota|Utah|Wyoming") ~ "Denver",
-    str_detect(location, "Arizona|California|Hawaii|Nevada|Guam|American Samoa") ~ "San Francisco",
-    str_detect(location, "Alaska|Idaho|Oregon|Washington") ~ "Seattle",
-    
-    
-    # 3
-    str_detect(location, "Boston") ~ "Boston",
-    str_detect(location, "New York City") ~ "New York City",
-    str_detect(location, "Philadelphia") ~ "Philadelphia",
-    str_detect(location, "Atlanta") ~ "Atlanta",
-    str_detect(location, "Chicago") ~ "Chicago",
-    str_detect(location, "Dallas") ~ "Dallas",
-    str_detect(location, "Kansas City") ~ "Kansas City",
-    str_detect(location, "Denver") ~ "Denver",
-    str_detect(location, "San Francisco") ~ "San Francisco",
-    str_detect(location, "Seattle") ~ "Seattle",
+  mutate(
+    district = case_when(
+      # Partie 1: Localisations par États et Villes Principales
+      str_detect(location, "ME|VT|NH|MA|RI|CT|Boston|Maine|Vermont|New Hampshire|Massachusetts|Rhode Island|Connecticut") ~ "Boston",
+      str_detect(location, "NY|NJ|PR|VI|New York|New Jersey|Puerto Rico|Virgin Islands") ~ "New York",
+      str_detect(location, "DE|PA|VA|WV|MD|DC|Philadelphia|Delaware|Pennsylvania|Virginia|West Virginia|Maryland|District of Columbia") ~ "Philadelphia",
+      str_detect(location, "OH|KY|WV|Cleveland|Ohio|Kentucky|West Virginia") ~ "Cleveland",
+      str_detect(location, "VA|MD|NC|SC|WV|Richmond|Virginia|Maryland|North Carolina|South Carolina|West Virginia") ~ "Richmond",
+      str_detect(location, "GA|FL|AL|MS|TN|LA|Atlanta|Georgia|Florida|Alabama|Mississippi|Tennessee|Louisiana") ~ "Atlanta",
+      str_detect(location, "IL|IN|IA|WI|MI|Chicago|Illinois|Indiana|Iowa|Wisconsin|Michigan") ~ "Chicago",
+      str_detect(location, "MO|AR|IL|KY|TN|MS|Saint Louis|St. Louis|Missouri|Arkansas|Illinois|Kentucky|Tennessee|Mississippi") ~ "Saint Louis",
+      str_detect(location, "MN|ND|SD|MT|WI|Minneapolis|Minnesota|North Dakota|South Dakota|Montana|Wisconsin") ~ "Minneapolis",
+      str_detect(location, "MO|KS|NE|OK|CO|WY|NM|Kansas City|Missouri|Kansas|Nebraska|Oklahoma|Colorado|Wyoming|New Mexico") ~ "Kansas City",
+      str_detect(location, "TX|NM|LA|Dallas|Texas|New Mexico|Louisiana") ~ "Dallas",
+      str_detect(location, "CA|WA|OR|AK|ID|UT|NV|AZ|HI|San Francisco|California|Washington|Oregon|Alaska|Idaho|Utah|Nevada|Arizona|Hawaii") ~ "San Francisco",
+      
+      # Partie 2: Localisations Métropolitaines par District
+      # Chicago District
+      str_detect(location, "Louisville Metropolitan Area|Greater Milwaukee|Cincinnati Metropolitan Area|Greater Bloomington Area|Grand Rapids Metropolitan Area|Detroit Metropolitan Area|Urbana-Champaign Area") ~ "Chicago",
+      
+      # Atlanta District
+      str_detect(location, "Greater Palm Bay-Melbourne-Titusville Area|Miami-Fort Lauderdale Area|Greater Tampa Bay Area|Metro Jacksonville|Crestview-Fort Walton Beach-Destin Area|Nashville Metropolitan Area|Memphis Metropolitan Area|Knoxville Metropolitan Area|Greater Chattanooga|Greater Macon|Bowling Green Metropolitan Area|Greater Bangor Area|Mobile Metropolitan Area|Pensacola Metropolitan Area|Greater Orlando|Albuquerque-Santa Fe Metropolitan Area") ~ "Atlanta",
+      
+      # San Francisco District
+      str_detect(location, "Greater Eugene-Springfield Area|Portland, Oregon Metropolitan Area|Greater Seattle Area|Los Angeles Metropolitan Area|San Diego Metropolitan Area|Greater Sacramento|Salt Lake City Metropolitan Area|Greater Phoenix Area|Las Vegas Metropolitan Area|Greater Reno Area") ~ "San Francisco",
+      
+      # Kansas City District
+      str_detect(location, "Denver Metropolitan Area|Greater Fort Collins Area|Pueblo-Cañon City Area|Omaha Metropolitan Area|Des Moines Metropolitan Area|Greater Sioux Falls Area|Fargo-Moorhead") ~ "Kansas City",
+      
+      # Dallas District
+      str_detect(location, "Greater Houston|Greater McAllen Area|Beaumont-Port Arthur Area") ~ "Dallas",
+      
+      # Richmond District
+      str_detect(location, "Buffalo-Niagara Falls Area|Greater Pittsburgh Region|Greater Harrisburg Area|Greater Scranton Area|Erie-Meadville Area|Greater Hartford|Greater New Orleans Region|Johnson City-Kingsport-Bristol Area|Raleigh-Durham-Chapel Hill Area|Tallahassee Metropolitan Area|Charlotte Metro|Greensboro--Winston-Salem--High Point Area|Greater Asheville") ~ "Richmond",
+      
+      # Minneapolis District
+      str_detect(location, "Omaha Metropolitan Area|Des Moines Metropolitan Area|Greater Sioux Falls Area|Fargo-Moorhead") ~ "Minneapolis",
+      
+      # Partie 3: Autres Localisations
+      grepl("United States", location, ignore.case = TRUE) ~ "All",
+      TRUE ~ "Other" # pour vérifier qu'il n'y a pas de lieu qu'on a pas traité
 
+    )
+  )
 
-    # 4
-    str_detect(location, "Bangor") ~ "Boston",
-    str_detect(location, "Hartford|Scranton|Buffalo-Niagara|Erie|Buffalo") ~ "New York City",
-    str_detect(location, "Harrisburg|Richmond") ~ "Philadelphia",
-    str_detect(location, "Chattanooga|Macon|Nashville|Asheville|Raleigh-Durham|New Orleans|Miami|Tampa|Jacksonville|Orlando|Pensacola|Charlotte|Greensboro|Memphis|Knoxville|Mobile|Bowling Green|Johnson City|Palm Bay-Melbourne-Titusville|Crestview-Fort Walton Beach-Destin|Tallahassee") ~ "Atlanta",
-    str_detect(location, "Detroit|Cincinnati|Milwaukee|Grand Rapids|Minneapolis|Pittsburgh|Cleveland|Fargo|Urbana-Champaign|Bloomington|Louisville") ~ "Chicago",
-    str_detect(location, "McAllen|Houston|Beaumont") ~ "Dallas",
-    str_detect(location, "Omaha|Des Moines|St. Louis|Sioux Falls") ~ "Kansas City",
-    str_detect(location, "Reno|Pueblo|Fort Collins|Salt Lake City") ~ "Denver",
-    str_detect(location, "Sacramento|Yuma|Albuquerque|Los Angeles|San Diego|Eugene-Springfield|Phoenix|Las Vegas") ~ "San Francisco",
+# Vérification des résultats
+table(data8$district)
+other <- filter(data8, district == "Other")
+unique(other$location)
 
-    
-    # 5
-    TRUE ~ "Other"
-  ))
-
-sum(table(data8$geographic_scope))
-table(data8$geographic_scope)
 ```
+# Region
 
 ```{r}
-  # Vérifie s'il y a toujours des location qui n'ont pas été catégoriser
-  other <- filter(data8, geographic_scope == "Other")
-  unique(other$location)
-  
-  # suppression de la colonne location
-  data8 <- select(data8, -location)
-  head(data8)
+data9 <- data8 %>%
+  mutate(
+    region = case_when(
+      district %in% c("Boston", "New York", "Philadelphia") ~ "Northeast",
+      district %in% c("Cleveland", "Chicago", "Minneapolis", "Saint Louis", "Kansas City") ~ "Midwest",
+      district %in% c("Richmond", "Atlanta", "Dallas") ~ "South",
+      district %in% c("San Francisco") ~ "West",
+      district %in% c("All") ~ "All",
+    )
+  )
+
+# Vérifier les résultats après ajout de la région
+table(data9$region)
+
 ```
+
+
 
 
 # Enregistrement du dataframe traité dans un fichier CSV
 ```{r}
-write.csv(data8, "job_processed.csv", row.names = FALSE)
+write.csv(data9, "job_processed.csv", row.names = FALSE)
 ```
 
 
