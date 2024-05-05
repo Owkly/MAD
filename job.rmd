@@ -349,6 +349,19 @@ data9 <- data8 %>%
     )
   )
 
+
+# data9 <- data8 %>%
+#   mutate(
+#     region = case_when(
+#       district %in% c("Boston", "New York", "Philadelphia") ~ "Northeast",
+#       district %in% c("Chicago", "Cleveland", "Minneapolis", "Kansas City", "Saint Louis") ~ "Midwest",
+#       district %in% c("Richmond", "Atlanta") ~ "Southeast",
+#       district %in% c("Dallas") ~ "Southwest",
+#       district %in% c("San Francisco") ~ "West",
+#       district == "All" ~ "All"
+#     )
+#   )
+
 # Vérifier les résultats après ajout de la région
 table(data9$region)
 print(data9)

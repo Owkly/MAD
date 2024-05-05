@@ -16,8 +16,8 @@ data <- data %>%
     formatted_experience_level = case_when(
       formatted_experience_level == "Internship"       ~ 0,
       formatted_experience_level == "Entry level"      ~ 1,
-      formatted_experience_level == "Mid-Senior level" ~ 2,
-      formatted_experience_level == "Associate"        ~ 3,
+      formatted_experience_level == "Associate"        ~ 2,
+      formatted_experience_level == "Mid-Senior level" ~ 3,
       formatted_experience_level == "Director"         ~ 4,
       formatted_experience_level == "Executive"        ~ 5,
     )

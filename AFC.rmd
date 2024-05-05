@@ -12,15 +12,19 @@ data <- read.csv(path, header = TRUE)
 
 data$formatted_experience_level <- as.factor(data$formatted_experience_level)
 data$district <- as.factor(data$district)
-data$region <- as.factor(data$district)
+data$region <- as.factor(data$region)
+data$remote_allowed <- as.factor(data$remote_allowed)
+data$application_type <- as.factor(data$application_type)
+data$sponsored <- as.factor(data$sponsored)
 
 print(data)
 ```
 
 
+# 1 ACP : expérience - region
 ```{r}
 # Calcul de la table de contingence
-data_afc <- xtabs(~ formatted_experience_level + district, data = data)
+data_afc <- xtabs(~ formatted_experience_level + region, data = data)
 print(data_afc)
 
 # Barplot montrant la proportion d'offres d'emploi dans chaque district par rapport au total des offres
@@ -30,7 +34,7 @@ barplot(apply(data_afc,1,sum)/sum(data_afc),las=3) # selon l'experience
   # apply(data,1,sum)  # somme les les éléments d'une pour chaque ligne
   # apply(data,2,sum)  # somme les éléments d'un colonne pour chaque colonne
 ```
-- Sur le premier barplot les offres d'emploi dans le district de San Francisco sont beaucoup plus nombreuses par rapport aux autres districts. Cela pourrait indiquer un marché de l'emploi plus actif ou une plus grande concentration d'entreprises dans cette région.
+- Sur le premier barplot la région Ouest et Nord-Est regroupe à eux 2 plus de 50 % des offres sans compter les offres qui est à l'échelle national qui peuvent aussi les inclure. Cela peut être dues à la forte concentration d'industries de haute technologie, en particulier dans des zones telles que la Silicon Valley et Seattle (pour l'Ouest). Et dela présence de grands centres financiers et éducatifs comme New York et Boston (Nord-Est). Cette région est connu pour ses industries financières, ses institutions académiques de premier plan et ses secteurs de la santé et de la biotechnologie, qui attirent un grand nombre de professionnels.
 
 - Puis sur Le deuxième barplot on voit que les postes de niveau "Entry level" et "Senior level" sont les plus fréquents, ce qui peut indiquer une demande élevée pour des positions de début de carrière et des rôles plus avancés.
 
@@ -44,7 +48,7 @@ chi_test <- chisq.test(data_afc)
 print(chi_test)
 ```
 
-donc les deux variables district et formatted_experience_level sont dépendantes
+donc les deux variables region et formatted_experience_level sont dépendantes
 
 ```{r}
 res=CA(data_afc)
@@ -57,16 +61,121 @@ res$eig[,2]
 barplot(res$eig[, 2], main = "Pourcentage de la variance expliquée par axe", 
         xlab = "Axes", ylab = "Pourcentage", las = 2)
 ```
-on va garder 2 axes car les axes Dim 1 et Dim 2 réprésente à peu près 80%
+on va garder 2 axes car les axes Dim 1 et Dim 2 réprésente plus 80%
+
+```{r}
+# # Extraire les cos² pour les lignes et les colonnes
+# row_cos2 <- res$row$cos2[, 1:2]  # Premiers deux axes pour les lignes
+# col_cos2 <- res$col$cos2[, 1:2]  # Premiers deux axes pour les colonnes
+# 
+# # Configuration de l'affichage graphique
+# par(mfrow = c(1, 1), mar = c(5, 8, 4, 2))
+# 
+# # Barplot horizontal pour les cos² des lignes sur les deux premiers axes
+# barplot(row_cos2[, 1], main = "Cos² Niveau Expérience sur Axe 1", xlab = "Cos²", horiz = TRUE, las = 1)
+# barplot(row_cos2[, 2], main = "Cos² Niveau Expérience sur Axe 2", xlab = "Cos²", horiz = TRUE, las = 1)
+# 
+# # Barplot horizontal pour les cos² des colonnes sur les deux premiers axes
+# barplot(col_cos2[, 1], main = "Cos² des Region sur Axe 1", xlab = "Cos²", horiz = TRUE, las = 1)
+# barplot(col_cos2[, 2], main = "Cos² des Region sur Axe 2", xlab = "Cos²", horiz = TRUE, las = 1)
+# 
+# par(mfrow = c(1, 1))  # Réinitialise la disposition normale
+
+```
 
 ```{r}
 plot(res, invisible="row")
 plot(res, invisible="row", selectCol="cos2 0.8")
 plot(res, invisible="row", selectCol="contrib 4")
-```
-```{r}
 res$col$contrib
 ```
+- Axes 1 : "All" et "South" contribue le plus sur cet axe et on voit qui sont tout les 2 positionné aux 2 extremités. Les régions, "All" se trouve tout à droite, représentant des offres d'emploi généralistes avec une portée nationale, tandis que "South" est tout à gauche, indiquant alors des offres spécifiques à cette région.
+Qui sont peut-être liées à des industries régionales telles que l'agriculture ou la fabrication. Cette distinction entre généralistes et spécifiques suggère une différenciation dans les compétences recherchées et les besoins du marché du travail régional.
 
+- Axes 2 : Sur cette axe les 2 contributions les plus élevés sont ceux des régions "South" et "Midwest". Le "South", situé plus haut sur le graphe, se distingue par son implication dans des secteurs innovants comme l'énergie et l'aérospatiale, surtout dans des États comme le Texas et la Floride. En revanche, le "Midwest", plus bas sur l'axe, se concentre sur des industries traditionnelles comme la fabrication et l'agriculture, notamment dans des États comme l'Ohio et le Michigan. On peut donc supposer que cet axe indique le degré d'innovation ou de technologie des offres d'emploi dans ces régions, avec le "South" privilégiant des secteurs plus novateurs et le "Midwest" se concentrant davantage sur des industries traditionnelles.
+
+```{r}
+plot(res, invisible="col")
+plot(res, invisible="col", selectRow ="cos2 0.7")
+plot(res, invisible="col", selectRow ="contrib 4")
+res$row$contrib
+```
+- Axes 1 : Les niveaux "Director" et "Associate" ont les contributions les plus élevées sur cet axe. "Director" est positionné à tout à droite tandis que "Associate" tout à gauche. On peux donc supposer que l'axe 1 capte probablement les différences en termes de responsabilité ou de complexité des postes. Les postes de direction impliquent des responsabilités plus élevées, tandis que les postes d'associé sont généralement de niveau inférieur.
+
+- Axes 2 : "Associate" a une contribution significative sur l'Axe 2 et est positionné légèrement au-dessus de l'axe horizontal. Tandis que "Entry level" apparaît également avec une contribution notable sur cet axe, mais est positionné un peu plus en bas. 
+Ces 2 types de niveaux peuvent partager une similarité dans la compréhension générale du travail, car ils sont tous deux souvent associés à des rôles d'initiation où les employés apprennent les bases de leurs fonctions et de l'organisation. Mais elles peuvent différer en termes d'autonomie, niveau de responsabilité ou de la porté des tâches. Car les employés en début de carrière peuvent avoir un niveau d'autonomie plus faible et nécessiter une supervision dans leurs tâches, tandis que les associés peuvent être plus autonomes.
+Donc l'axe 2 pourrait être interprété comme reflétant les variations dans l'autonomie et la responsabilité au sein des postes de départ de carrière,
+
+
+
+```{r}
+plot(res, selectRow ="cos2 0.8", selectCol ="cos2 0.7")
+```
+
+
+
+- On observe que "Entry level" est très proche avec la région "Midwest" ce qui suggère que cette zone a une demande plus importante pour des postes de niveau débutant, ce qui est semble assez cohérent. En effet, ce dernier se concentre plus dans les industries traditionnelles. Ces secteurs offrent souvent de nombreuses opportunités d'emploi ne nécessitant pas une expérience préalable.
+
+- On remarque aussi que Associate", est très proche de "South". Cela suggère que la région "South" pourrait avoir une demande significative pour des postes d'associé, ce qui est due à ses activités plus orientés dans les secteurs innovants tels que l'énergie et l'aérospatiale. Dans ces domaines, les postes d'associé exigent généralement un peu plus d'expérience et de compétences que les postes de niveau "Entry level", car ils sont souvent impliqués dans des activités de recherche et développement plus avancées.
+
+- Enfin on voir que les postes de "Director" sont proches de "All" sur le graphique, indiquant une demande dispersée à travers tout le pays pour ces positions à haute responsabilité. Ce qui signifie que les compétences de leadership et de gestion sont valorisées de manière uniforme à travers différentes régions, reflétant la nécessité pour les entreprises, quelle que soit leur localisation, de recruter des cadres supérieurs capables de diriger des équipes et de piloter des stratégies d'affaires efficacement. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 2 AFC experience - district
+```{r}
+# Calcul de la table de contingence
+data_afc <- xtabs(~ formatted_experience_level + district, data = data)
+print(data_afc)
+
+# Barplot montrant la proportion d'offres d'emploi dans chaque district par rapport au total des offres
+barplot(apply(data_afc,2,sum)/sum(data_afc),las=3) # selon le district
+barplot(apply(data_afc,1,sum)/sum(data_afc),las=3) # selon l'experience
+
+# test d'indépendance
+chi_test <- chisq.test(data_afc)
+print(chi_test)
+
+res=CA(data_afc, graph = FALSE)
+
+# Barplot des valeurs propres pour déterminer le nombre d'axes à retenir
+barplot(res$eig[, 2], main = "Pourcentage de la variance expliquée par axe", xlab = "Axes", ylab = "Pourcentage", las = 2)
+
+
+plot(res, invisible="row")
+plot(res, invisible="row", selectCol="cos2 0.8")
+plot(res, invisible="row", selectCol="contrib 4")
+
+plot(res, invisible="col")
+plot(res, invisible="col", selectRow ="cos2 0.7")
+plot(res, invisible="col", selectRow ="contrib 4")
+```
+
+
+
+
+
+```{r}
+plot(res, selectRow ="cos2 0.8", selectCol ="cos2 0.8")
+```
 
 
