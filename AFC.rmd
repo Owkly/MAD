@@ -1,7 +1,9 @@
 ```{r}
+if (!require("dplyr)")) install.packages("dplyr)")
+if (!require("FactoMineR")) install.packages("FactoMineR")
+if (!require("factoextra")) install.packages("factoextra")
 library(dplyr)
 library(FactoMineR)
-# install.packages("factoextra")
 library(factoextra)
 ```
 

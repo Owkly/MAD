@@ -1,7 +1,9 @@
 ```{r}
+if (!require("dplyr)")) install.packages("dplyr)")
+if (!require("FactoMineR")) install.packages("FactoMineR")
+if (!require("factoextra")) install.packages("factoextra")
 library(dplyr)
 library(FactoMineR)
-# install.packages("factoextra")
 library(factoextra)
 ```
 
@@ -35,6 +37,10 @@ data_quant_scaled <- scale(data_quant)
 
 # Combinaison des variables quantitatives et qualitatives
 data_combined <- cbind(data_quant_scaled, select(data, district, region, remote_allowed, sponsored))
+data_combined$district <- as.factor(data_combined$district)
+data_combined$region <- as.factor(data_combined$region)
+data_combined$remote_allowed <- as.factor(data_combined$remote_allowed)
+data_combined$sponsored <- as.factor(data_combined$sponsored)
 ```
 
 # lancement de l'ACP
@@ -74,6 +80,7 @@ fviz_pca_ind(res, label = "none", habillage = 7)
 fviz_pca_ind(res, label = "none", habillage = 8)
 fviz_pca_ind(res, label = "none", habillage = 9)
 ```
+
 Pour les 4 graphes les points sont plutôt bien dispersé le long de l'axe de Dim 2 ce qui signifie que les variables qualitatif présentent une variabilité similaire sur cette dimension
 
 - graphe 1 :
@@ -108,3 +115,13 @@ print(paste("Pourcentage de TRUE :", pourcentage_true, "%"))
 ```
 Même si on a un peu plus d'annonce qui sont sponsorisé comparer au travail à distance cela reste très peu.
 Il semble aussi que le sponsoring des offres d'emploi n'a pas d'impact significatif sur le nombre de vues ou de candidatures reçues. En effet, nous pouvons observer que les points pour les offres sponsorisées (sponsored_TRUE) et non sponsorisées (sponsored_FALSE) sont dispersés de manière quasi similaire le long de la Dim 1.
+
+
+```{r}
+plot(res, choix="ind", habillage=1, cex=0.3)
+plot(res, choix="ind", habillage=2, cex=0.3)
+plot(res, choix="ind", habillage=3, cex=0.3)
+plot(res, choix="ind", habillage=4, cex=0.3)
+plot(res, choix="ind", habillage=5, cex=0.3)
+```
+
