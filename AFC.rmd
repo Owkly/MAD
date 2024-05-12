@@ -60,8 +60,7 @@ summary(res)
 ```{r}
 res$eig[,2]
 # Barplot des valeurs propres pour déterminer le nombre d'axes à retenir
-barplot(res$eig[, 2], main = "Pourcentage de la variance expliquée par axe", 
-        xlab = "Axes", ylab = "Pourcentage", las = 2)
+barplot(res$eig[, 2], main = "Pourcentage de la variance expliquée par axe",  xlab = "Axes", ylab = "Pourcentage", las = 2)
 ```
 on va garder 2 axes car les axes Dim 1 et Dim 2 réprésente plus 80%
 

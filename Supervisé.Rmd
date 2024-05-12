@@ -1,0 +1,222 @@
+```{r}
+if (!require("dplyr)")) install.packages("dplyr)")
+
+library(MASS)       # pour lda et qda
+library(rpart)      # pour CART
+library(rpart.plot)
+library(pROC)       # pour les courbes ROC
+
+```
+
+```{r}
+# Nettoyage de l'environnement de travail
+path = file.path(getwd(), "job_processed.csv")
+data <- read.csv(path, header = TRUE)
+
+# Convertir les variables nécessaires en facteurs
+data$formatted_experience_level <- as.factor(data$formatted_experience_level)
+data$remote_allowed <- as.factor(data$remote_allowed)
+# data$district <- as.factor(data$district)
+data$region <- as.factor(data$region)
+data$application_type <- as.factor(data$application_type)
+data$sponsored <- as.factor(data$sponsored)
+
+# Sélection des variables pertinentes pour l'analyse
+data <- data[, c("applies", "views", "salary", "duration_days", "formatted_experience_level", "region", "remote_allowed", "application_type", "sponsored")]
+
+```
+
+
+```{r}
+set.seed(1)
+n <- nrow(data)               # Nombre total d'observations
+test.ratio <- 0.2             # Proportion de l'ensemble de test (20% des données)
+n.test <- round(n*test.ratio) # Calcul du nombre d'observations dans l'ensemble de test
+indices <- sample(1:n, n.test)# Indices aléatoires pour l'ensemble de test
+data.test <- data[indices,]   # Création de l'ensemble de test
+data.train <- data[-indices,] # Création de l'ensemble d'entraînement
+
+```
+
+```{r}
+table(data.train$remote_allowed)
+```
+
+
+```{r}
+data.train.balanced <- SMOTE(remote_allowed ~ ., data.train)
+table(data.train.balanced$remote_allowed)
+
+# data.train.balanced <- data.train
+```
+
+
+
+```{r}
+
+# Construction de l'arbre de décision
+arbre <- rpart(remote_allowed ~ ., data = data.train)
+
+```
+
+# modèle lda qda
+
+```{r}
+library(MASS)  # Pour LDA et QDA
+
+# LDA
+mod_lda <- lda(remote_allowed ~ ., data = data.train.balanced)
+pred_lda <- predict(mod_lda, newdata = data.test)
+table_lda <- table(Prediction = pred_lda$class, Reality = data.test$remote_allowed)
+accuracy_lda <- sum(diag(table_lda)) / sum(table_lda)
+roc_lda <- roc(data.test$remote_allowed, as.numeric(pred_lda$posterior[,2]))
+
+print(table_lda)
+print(accuracy_lda)
+print(roc_lda)
+plot(roc_lda)
+```
+
+
+
+# qda
+
+```{r}
+# QDA
+mod_qda <- qda(remote_allowed ~ ., data = data.train.balanced)
+pred_qda <- predict(mod_qda, newdata = data.test)
+table_qda <- table(Prediction = pred_qda$class, Reality = data.test$remote_allowed)
+accuracy_qda <- sum(diag(table_qda)) / sum(table_qda)
+roc_qda <- roc(data.test$remote_allowed, as.numeric(pred_qda$posterior[,2]))
+
+print(table_qda)
+print(accuracy_qda)
+print(roc_qda)
+plot(roc_qda)
+```
+
+
+# cart
+
+```{r}
+library(rpart)
+
+# CART
+mod_cart <- rpart(remote_allowed ~ ., data = data.train.balanced)
+pred_cart_prob <- predict(mod_cart, newdata = data.test, type = "prob")  
+pred_cart_class <- predict(mod_cart, newdata = data.test, type = "class")  
+table_cart <- table(Prediction = pred_cart_class, Reality = data.test$remote_allowed)
+accuracy_cart <- sum(diag(table_cart)) / sum(table_cart)
+roc_cart <- roc(as.numeric(data.test$remote_allowed) - 1, pred_cart_prob[,2]) 
+
+print(table_cart)
+print(accuracy_cart)
+print(roc_cart)
+plot(roc_cart)
+
+
+```
+
+# randomForest
+
+```{r}
+library(randomForest)
+
+# RandomForest
+mod_rf <- randomForest(remote_allowed ~ ., data = data.train.balanced, ntree = 500)
+pred_rf <- predict(mod_rf, newdata = data.test)
+table_rf <- table(Prediction = pred_rf, Reality = data.test$remote_allowed)
+accuracy_rf <- sum(diag(table_rf)) / sum(table_rf)
+roc_rf <- roc(data.test$remote_allowed, as.numeric(pred_rf))
+
+print(table_rf)
+print(accuracy_rf)
+print(roc_rf)
+plot(roc_rf)
+
+```
+
+# régression logistique
+
+```{r}
+library(glmnet)
+
+# Modèle LASSO
+res_Lasso <- glmnet(as.matrix(data.train.balanced[,-1]), data.train.balanced$remote_allowed, family = 'binomial')
+plot(res_Lasso)
+
+# Sélection du lambda optimal en utilisant la validation croisée
+cvLasso <- cv.glmnet(as.matrix(data.train.balanced[,-1]), data.train.balanced$remote_allowed, family = "binomial", type.measure = "class")
+plot(cvLasso)
+lambda_optimal <- cvLasso$lambda.min
+print(lambda_optimal)
+
+```
+```{r}
+# Prédiction
+class_logit_lasso <- predict(cvLasso, newx = as.matrix(data.test[,-1]), s = 'lambda.min', type = "class")
+
+# Table de confusion et exactitude
+table_logit_lasso <- table(Prédiction = class_logit_lasso, Réalité = data.test$remote_allowed)
+accuracy_logit_lasso <- sum(diag(table_logit_lasso)) / sum(table_logit_lasso)
+
+# Courbe ROC
+pred_logit_lasso <- predict(cvLasso, newx = as.matrix(data.test[,-1]), s = 'lambda.min', type = "response")
+ROC_logit_lasso <- roc(data.test$remote_allowed, pred_logit_lasso)
+
+# Affichage des résultats
+print(table_logit_lasso)
+print(paste("Exactitude pour la régression logistique Lasso:", accuracy_logit_lasso))
+print(ROC_logit_lasso$auc)
+plot(ROC_logit_lasso, print.auc = TRUE, print.auc.y = 0.5)
+```
+
+```{r}
+# Préparation des données pour la matrice de comparaison
+accuracy_values <- c(accuracy_lda, accuracy_qda, accuracy_cart, accuracy_rf, accuracy_logit_lasso)
+auc_values <- c(roc_lda$auc, roc_qda$auc, roc_cart$auc, roc_rf$auc, ROC_logit_lasso$auc)
+
+# Création de la matrice de comparaison
+result <- matrix(NA, ncol = 5, nrow = 2)
+rownames(result) <- c('accuracy', 'AUC')
+colnames(result) <- c('lda', 'qda', 'cart', 'RF', 'logit_lasso')
+result[1,] <- accuracy_values
+result[2,] <- auc_values
+
+# Affichage des résultats
+print(result)
+# Identification du meilleur modèle par métrique
+best_accuracy <- colnames(result)[which.max(result[1,])]
+best_auc <- colnames(result)[which.max(result[2,])]
+print(paste("Modèle avec meilleur accuracy: ", best_accuracy))
+print(paste("Modèle avec meilleur AUC: ", best_auc))
+
+```
+
+
+
+```{r}
+# FALSE  TRUE 
+#  5077  1161 
+# 
+# 
+#                lda       qda      cart        RF logit_lasso
+# accuracy 0.8929487 0.8865385 0.8929487 0.9051282   0.8294872
+# AUC      0.8109529 0.8160165 0.7097420 0.7485243   0.7155322
+# [1] "Modèle avec meilleur accuracy:  RF"
+# [1] "Modèle avec meilleur AUC:  qda"
+
+
+
+
+# FALSE  TRUE 
+#  4644  3483 
+# 
+#                lda       qda      cart        RF logit_lasso
+# accuracy 0.8750000 0.8743590 0.8467949 0.8653846   0.7967949
+# AUC      0.7578012 0.7639931 0.7485064 0.7814241   0.7097750
+# [1] "Modèle avec meilleur accuracy:  lda"
+# [1] "Modèle avec meilleur AUC:  RF"
+```
+
+

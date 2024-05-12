@@ -56,7 +56,7 @@ d’inertie intra”.
 # cah + affichage
 cah <- hclust(dist_data_quant_cr, method="ward.D2")
 plot(cah, main = "Dendrogram for K=5")
-rect.hclust(cah5, k = 5)
+rect.hclust(cah, k = 5)
 # cutree
 cah_cutree5 <- cutree(cah, 5)
 table(cah_cutree5)
@@ -190,93 +190,93 @@ plot(sil_cah6, main = "Silhouette CAH avec K=6")
 
 
 
-```{r}
-# Clustering K-means pour K=4 et K=7
-kmeans4 <- kmeans(data_quant_cr, centers = 4, nstart = 10)
-kmeans7 <- kmeans(data_quant_cr, centers = 7, nstart = 10)
+<!-- ```{r} -->
+<!-- # Clustering K-means pour K=4 et K=7 -->
+<!-- kmeans4 <- kmeans(data_quant_cr, centers = 4, nstart = 10) -->
+<!-- kmeans7 <- kmeans(data_quant_cr, centers = 7, nstart = 10) -->
 
-# Clustering hiérarchique (CAH) pour K=4 et K=7
-cah <- hclust(dist_data_quant_cr, method = "ward.D2")
+<!-- # Clustering hiérarchique (CAH) pour K=4 et K=7 -->
+<!-- cah <- hclust(dist_data_quant_cr, method = "ward.D2") -->
 
-# Découpage des arbres de CAH en 4 et 7 clusters
-cah_cutree4 <- cutree(cah, 4)
-cah_cutree7 <- cutree(cah, 7)
+<!-- # Découpage des arbres de CAH en 4 et 7 clusters -->
+<!-- cah_cutree4 <- cutree(cah, 4) -->
+<!-- cah_cutree7 <- cutree(cah, 7) -->
 
-# Visualisation des dendrogrammes
-plot(cah, main = "Dendrogramme pour K=4")
-rect.hclust(cah4, k = 4)
-plot(cah, main = "Dendrogramme pour K=7")
-rect.hclust(cah7, k = 7)
-```
+<!-- # Visualisation des dendrogrammes -->
+<!-- plot(cah, main = "Dendrogramme pour K=4") -->
+<!-- rect.hclust(cah, k = 4) -->
+<!-- plot(cah, main = "Dendrogramme pour K=7") -->
+<!-- rect.hclust(cah, k = 7) -->
+<!-- ``` -->
 
 
-```{r}
-# Analyse de silhouette pour K-means avec K=4 et K=7
-sil_kmeans4 <- silhouette(kmeans4$cluster, dist(data_quant_cr))
-sil_kmeans7 <- silhouette(kmeans7$cluster, dist(data_quant_cr))
+<!-- ```{r} -->
+<!-- # Analyse de silhouette pour K-means avec K=4 et K=7 -->
+<!-- sil_kmeans4 <- silhouette(kmeans4$cluster, dist(data_quant_cr)) -->
+<!-- sil_kmeans7 <- silhouette(kmeans7$cluster, dist(data_quant_cr)) -->
 
-# Affichage des silhouettes pour K-means
-plot(sil_kmeans4, main = "Silhouette K-means avec K=4")
-plot(sil_kmeans7, main = "Silhouette K-means avec K=7")
+<!-- # Affichage des silhouettes pour K-means -->
+<!-- plot(sil_kmeans4, main = "Silhouette K-means avec K=4") -->
+<!-- plot(sil_kmeans7, main = "Silhouette K-means avec K=7") -->
 
-# Analyse de silhouette pour CAH avec K=4 et K=7
-sil_cah4 <- silhouette(cah_cutree4, dist(data_quant_cr))
-sil_cah7 <- silhouette(cah_cutree7, dist(data_quant_cr))
+<!-- # Analyse de silhouette pour CAH avec K=4 et K=7 -->
+<!-- sil_cah4 <- silhouette(cah_cutree4, dist(data_quant_cr)) -->
+<!-- sil_cah7 <- silhouette(cah_cutree7, dist(data_quant_cr)) -->
 
-# Affichage des silhouettes pour CAH
-plot(sil_cah4, main = "Silhouette CAH avec K=4")
-plot(sil_cah7, main = "Silhouette CAH avec K=7")
+<!-- # Affichage des silhouettes pour CAH -->
+<!-- plot(sil_cah4, main = "Silhouette CAH avec K=4") -->
+<!-- plot(sil_cah7, main = "Silhouette CAH avec K=7") -->
 
-```
+<!-- ``` -->
 
-```{r}
-# # PCA for K-means clusters with K=4
-# data4_kmeans_class <- cbind.data.frame(data_quant_cr, cluster = factor(kmeans4$cluster))
-# acp4_kmeans_class <- PCA(data4_kmeans_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE)
-# 
-# # PCA for K-means clusters with K=7
-# data7_kmeans_class <- cbind.data.frame(data_quant_cr, cluster = factor(kmeans7$cluster))
-# acp7_kmeans_class <- PCA(data7_kmeans_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE)
-# 
-# # Displaying PCA results for K-means clusters
-# plot(acp4_kmeans_class, choix = "ind", habillage = 6)  # Visualizing individuals with cluster information
-# plot(acp7_kmeans_class, choix = "ind", habillage = 6)
-# 
-# # PCA for CAH clusters with K=4
-# data4_cah_class <- cbind.data.frame(data_quant_cr, cluster = factor(cah_cutree4))
-# acp4_cah_class <- PCA(data4_cah_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE)
-# 
-# # PCA for CAH clusters with K=7
-# data7_cah_class <- cbind.data.frame(data_quant_cr, cluster = factor(cah_cutree7))
-# acp7_cah_class <- PCA(data7_cah_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE)
-# 
-# # Displaying PCA results for CAH clusters
-# plot(acp4_cah_class, choix = "ind", habillage = 6)  # Visualizing individuals with cluster information
-# plot(acp7_cah_class, choix = "ind", habillage = 6)
-# 
-# # PCA for K-means clusters with K=4
-# data4_kmeans_class <- cbind.data.frame(data_quant_cr, cluster = factor(kmeans4$cluster))
-# acp4_kmeans_class <- PCA(data4_kmeans_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE)
-# 
-# # PCA for K-means clusters with K=7
-# data7_kmeans_class <- cbind.data.frame(data_quant_cr, cluster = factor(kmeans7$cluster))
-# acp7_kmeans_class <- PCA(data7_kmeans_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE)
-# 
-# # Displaying PCA results for K-means clusters
-# plot(acp4_kmeans_class, choix = "ind", habillage = 6)  # Visualizing individuals with cluster information
-# plot(acp7_kmeans_class, choix = "ind", habillage = 6)
-# 
-# # PCA for CAH clusters with K=4
-# data4_cah_class <- cbind.data.frame(data_quant_cr, cluster = factor(cah_cutree4))
-# acp4_cah_class <- PCA(data4_cah_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE)
-# 
-# # PCA for CAH clusters with K=7
-# data7_cah_class <- cbind.data.frame(data_quant_cr, cluster = factor(cah_cutree7))
-# acp7_cah_class <- PCA(data7_cah_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE)
-# 
-# # Displaying PCA results for CAH clusters
-# plot(acp4_cah_class, choix = "ind", habillage = 6)  # Visualizing individuals with cluster information
-# plot(acp7_cah_class, choix = "ind", habillage = 6)
+<!-- ```{r} -->
+<!-- # PCA for K-means clusters with K=4 -->
+<!-- data4_kmeans_class <- cbind.data.frame(data_quant_cr, cluster = factor(kmeans4$cluster)) -->
+<!-- acp4_kmeans_class <- PCA(data4_kmeans_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE) -->
 
-```
+<!-- # PCA for K-means clusters with K=7 -->
+<!-- data7_kmeans_class <- cbind.data.frame(data_quant_cr, cluster = factor(kmeans7$cluster)) -->
+<!-- acp7_kmeans_class <- PCA(data7_kmeans_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE) -->
+
+<!-- # Displaying PCA results for K-means clusters -->
+<!-- plot(acp4_kmeans_class, choix = "ind", habillage = 6)  # Visualizing individuals with cluster information -->
+<!-- plot(acp7_kmeans_class, choix = "ind", habillage = 6) -->
+
+<!-- # PCA for CAH clusters with K=4 -->
+<!-- data4_cah_class <- cbind.data.frame(data_quant_cr, cluster = factor(cah_cutree4)) -->
+<!-- acp4_cah_class <- PCA(data4_cah_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE) -->
+
+<!-- # PCA for CAH clusters with K=7 -->
+<!-- data7_cah_class <- cbind.data.frame(data_quant_cr, cluster = factor(cah_cutree7)) -->
+<!-- acp7_cah_class <- PCA(data7_cah_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE) -->
+
+<!-- # Displaying PCA results for CAH clusters -->
+<!-- plot(acp4_cah_class, choix = "ind", habillage = 6)  # Visualizing individuals with cluster information -->
+<!-- plot(acp7_cah_class, choix = "ind", habillage = 6) -->
+
+<!-- # PCA for K-means clusters with K=4 -->
+<!-- data4_kmeans_class <- cbind.data.frame(data_quant_cr, cluster = factor(kmeans4$cluster)) -->
+<!-- acp4_kmeans_class <- PCA(data4_kmeans_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE) -->
+
+<!-- # PCA for K-means clusters with K=7 -->
+<!-- data7_kmeans_class <- cbind.data.frame(data_quant_cr, cluster = factor(kmeans7$cluster)) -->
+<!-- acp7_kmeans_class <- PCA(data7_kmeans_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE) -->
+
+<!-- # Displaying PCA results for K-means clusters -->
+<!-- plot(acp4_kmeans_class, choix = "ind", habillage = 6)  # Visualizing individuals with cluster information -->
+<!-- plot(acp7_kmeans_class, choix = "ind", habillage = 6) -->
+
+<!-- # PCA for CAH clusters with K=4 -->
+<!-- data4_cah_class <- cbind.data.frame(data_quant_cr, cluster = factor(cah_cutree4)) -->
+<!-- acp4_cah_class <- PCA(data4_cah_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE) -->
+
+<!-- # PCA for CAH clusters with K=7 -->
+<!-- data7_cah_class <- cbind.data.frame(data_quant_cr, cluster = factor(cah_cutree7)) -->
+<!-- acp7_cah_class <- PCA(data7_cah_class, scale.unit = TRUE, quali.sup = 6, graph = FALSE) -->
+
+<!-- # Displaying PCA results for CAH clusters -->
+<!-- plot(acp4_cah_class, choix = "ind", habillage = 6)  # Visualizing individuals with cluster information -->
+<!-- plot(acp7_cah_class, choix = "ind", habillage = 6) -->
+
+<!-- ``` -->
 

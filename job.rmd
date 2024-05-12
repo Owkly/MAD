@@ -65,7 +65,8 @@ print(paste("Lignes retirées :", initial_rows - filtered_rows))
 initial_rows <- nrow(data2)
 # On conserve uniquement les lignes où au moins une information sur le salaire est présente
 # Cela a retiré beaucoup de données mais c'était nécessaire
-data3 <- data2[!is.na(data2$min_salary) | !is.na(data2$med_salary) | !is.na(data2$max_salary), ]
+data3 <- data2[!is.na(data2$min_salary) | !is.na(data2$med_salary) | !is.na(data2$max_salary),]
+
 filtered_rows <- nrow(data3)
 print(paste("Lignes avant le filtrage :", initial_rows))
 print(paste("Lignes après filtrage par présence de salaire :", filtered_rows))
@@ -102,6 +103,10 @@ convert_salary <- function(salary, period) {
 data3$salary <- mapply(simplify_salary, data3$med_salary, data3$max_salary, data3$min_salary)
 data3$salary <- mapply(convert_salary, data3$salary, data3$pay_period)
 
+# Retirer les lignes où le salaire est inférieur à 1000
+# data3 <- subset(data3, salary >= 1000)
+
+head(data3)
 # Suppression des colonnes des salaire max, min et med
 data4 <- select(data3, -c(med_salary, max_salary, min_salary, pay_period))
 ```
@@ -205,6 +210,19 @@ data6$closed_time[is.na(data6$closed_time)] <- as.POSIXct("2030-01-01 00:00:01",
 print(data6)
 ```
 
+```{r}
+# affiche le nombre de na restant
+sum(is.na(data6)==TRUE)
+# Sélectionner les lignes avec des valeurs manquantes
+rows_with_na <- subset(data9, apply(is.na(data9), 1, any))
+# Afficher les lignes avec des valeurs manquantes
+print(rows_with_na)
+```
+
+```{r}
+# Supprimer toutes les lignes contenant des valeurs manquantes
+data6 <- na.omit(data6)
+```
 
 
 # Conversion des int en booléens

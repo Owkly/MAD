@@ -69,9 +69,9 @@ plot(res, choix="ind", axes=c(1,3))
 plot(res,choix = "var")
 ```
 
-- Dim 1 (38.24% de la variance expliquée) : elle est influencée par les variables views et applies.D'ailleurs views et applies sont pratiquement alignés le long de l'axe 1. Cela indique une forte corrélation positive entre ces deux variables et suggère que Dim 1 peut être interprétée comme un indicateur de la popularité des offres d'emploi.
+- Dim 1 (38.25% de la variance expliquée) : elle est influencée par les variables views et applies.D'ailleurs views et applies sont pratiquement alignés le long de l'axe 1. Cela indique une forte corrélation positive entre ces deux variables et suggère que Dim 1 peut être interprétée comme un indicateur de la popularité des offres d'emploi.
 
-- Dim 2 (27.64% de la variance expliquée) : elle est principalement influencée par le salary et formatted_experience_level, ce qui peut être vu comme la qualité ou le niveau de responsabilité des postes, avec des postes mieux rémunérés et nécessitant des niveaux d'expérience plus élevés. D'ailleurs la présence de duration_days sur cette dimension, pourrait indiquer que la durée pendant laquelle un poste reste ouvert peut être liée à des niveaux de salaire ou d'expérience plus élevés, possiblement en raison de la difficulté à trouver des candidats qualifiés pour des rôles plus spécialisés ou exigeants.
+- Dim 2 (28.5% de la variance expliquée) : elle est principalement influencée par le salary et formatted_experience_level, ce qui peut être vu comme la qualité ou le niveau de responsabilité des postes, avec des postes mieux rémunérés et nécessitant des niveaux d'expérience plus élevés. D'ailleurs la présence de duration_days sur cette dimension, pourrait indiquer que la durée pendant laquelle un poste reste ouvert peut être liée à des niveaux de salaire ou d'expérience plus élevés, possiblement en raison de la difficulté à trouver des candidats qualifiés pour des rôles plus spécialisés ou exigeants.
 
 ## Habillage des individus selon les variables qualitatives
 ```{r}
@@ -93,12 +93,7 @@ Ce qui pourrait signifier que les offres ayant moins de contrainte (ici de local
 - graphe 3 :
 
 ```{r}
-nb_true <- sum(data_combined$remote_allowed)
-nb_total <- length(data_combined$remote_allowed)
-
-# Calcul du pourcentage de TRUE
-pourcentage_true <- (nb_true / nb_total) * 100
-print(paste("Pourcentage de TRUE :", pourcentage_true, "%"))
+table(data$remote_allowed)
 ```
 On peut déjà remarquer qu'il y que très peu d'offre qui autorise le travail à distance (remote_allowed_TRUE).
 De plus on voit que les offres d'emploi permettant le travail à distance semblent se regrouper sur l'axe central, tandis que ceux qui ne le permettent pas (remote_allowed_FALSE) sont plus dispersés le long de la Dim 1. Cette disposition suggère que les offres autorisant le travail à distance pourraient être plus populaires ou plus visibles (plus de vues et de postulation), possiblement dues à une demande croissante pour la flexibilité dans les conditions de travail.
@@ -106,12 +101,7 @@ De plus on voit que les offres d'emploi permettant le travail à distance semble
 - graphe 4:
 
 ```{r}
-nb_true <- sum(data_combined$sponsored)
-nb_total <- length(data_combined$sponsored)
-
-# Calcul du pourcentage de TRUE
-pourcentage_true <- (nb_true / nb_total) * 100
-print(paste("Pourcentage de TRUE :", pourcentage_true, "%"))
+table(data$sponsored)
 ```
 Même si on a un peu plus d'annonce qui sont sponsorisé comparer au travail à distance cela reste très peu.
 Il semble aussi que le sponsoring des offres d'emploi n'a pas d'impact significatif sur le nombre de vues ou de candidatures reçues. En effet, nous pouvons observer que les points pour les offres sponsorisées (sponsored_TRUE) et non sponsorisées (sponsored_FALSE) sont dispersés de manière quasi similaire le long de la Dim 1.
