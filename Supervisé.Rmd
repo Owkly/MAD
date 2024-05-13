@@ -1,9 +1,12 @@
 ```{r}
 if (!require("dplyr)")) install.packages("dplyr)")
+if (!require("gbm")) install.packages("gbm")
 
+library(DMwR)
 library(MASS)       # pour lda et qda
 library(rpart)      # pour CART
 library(rpart.plot)
+library(gbm)        # pou adaboost
 library(pROC)       # pour les courbes ROC
 
 ```
@@ -52,12 +55,6 @@ table(data.train.balanced$remote_allowed)
 
 
 
-```{r}
-
-# Construction de l'arbre de décision
-arbre <- rpart(remote_allowed ~ ., data = data.train)
-
-```
 
 # modèle lda qda
 
@@ -117,6 +114,7 @@ plot(roc_cart)
 
 ```
 
+
 # randomForest
 
 ```{r}
@@ -135,6 +133,32 @@ print(roc_rf)
 plot(roc_rf)
 
 ```
+
+# adaboost
+
+## modèle
+```{r}
+fit.adaboost = gbm(as.numeric(remote_allowed)-1 ~ ., data = data.train.balanced, distribution = "adaboost")
+
+# Calibrer B=n.tree par cross-validation : 
+fit.adaboost=gbm(as.numeric(remote_allowed)-1 ~., data.train, distribution = "adaboost",cv.folds = 5, shrinkage = 0.01, n.trees=3000)
+gbm.perf(fit.adaboost)
+B.opt = gbm.perf(fit.adaboost, method="cv")
+```
+
+## prediction
+```{r}
+pred_adaboost <- predict(fit.adaboost, newdata=data.test, type = "response", n.trees = B.opt)
+pred_adaboost_class <- as.numeric(pred_adaboost > 0.5)
+table_adaboost <- table(Prediction = pred_adaboost_class, Reality=data.test$remote_allowed)
+accuracy_adaboost <- sum(diag(table_adaboost)) / sum(table_adaboost)
+
+print(table_adaboost)
+ROC_adaboost <- roc(data.test$remote_allowed, pred_adaboost)
+plot(ROC_adaboost, print.auc=TRUE,  print.auc.y = 0.5)
+
+```
+
 
 # régression logistique
 
@@ -171,15 +195,19 @@ print(ROC_logit_lasso$auc)
 plot(ROC_logit_lasso, print.auc = TRUE, print.auc.y = 0.5)
 ```
 
+# Comparaison
+
+## accuracy et AUC
+
 ```{r}
 # Préparation des données pour la matrice de comparaison
-accuracy_values <- c(accuracy_lda, accuracy_qda, accuracy_cart, accuracy_rf, accuracy_logit_lasso)
-auc_values <- c(roc_lda$auc, roc_qda$auc, roc_cart$auc, roc_rf$auc, ROC_logit_lasso$auc)
+accuracy_values <- c(accuracy_lda, accuracy_qda, accuracy_cart, accuracy_rf, accuracy_adaboost, accuracy_logit_lasso)
+auc_values <- c(roc_lda$auc, roc_qda$auc, roc_cart$auc, roc_rf$auc, ROC_adaboost$auc, ROC_logit_lasso$auc)
 
 # Création de la matrice de comparaison
-result <- matrix(NA, ncol = 5, nrow = 2)
+result <- matrix(NA, ncol = 6, nrow = 2)
 rownames(result) <- c('accuracy', 'AUC')
-colnames(result) <- c('lda', 'qda', 'cart', 'RF', 'logit_lasso')
+colnames(result) <- c('lda', 'qda', 'cart', 'RF', 'Adaboost' , 'logit_lasso')
 result[1,] <- accuracy_values
 result[2,] <- auc_values
 
@@ -199,12 +227,11 @@ print(paste("Modèle avec meilleur AUC: ", best_auc))
 # FALSE  TRUE 
 #  5077  1161 
 # 
-# 
-#                lda       qda      cart        RF logit_lasso
-# accuracy 0.8929487 0.8865385 0.8929487 0.9051282   0.8294872
-# AUC      0.8109529 0.8160165 0.7097420 0.7485243   0.7155322
+#                lda       qda      cart        RF  Adaboost logit_lasso
+# accuracy 0.8929487 0.8865385 0.8929487 0.9070513 0.8929487   0.8294872
+# AUC      0.8109529 0.8160165 0.7097420 0.7510630 0.8446123   0.7158404
 # [1] "Modèle avec meilleur accuracy:  RF"
-# [1] "Modèle avec meilleur AUC:  qda"
+# [1] "Modèle avec meilleur AUC:  Adaboost"
 
 
 
@@ -212,11 +239,24 @@ print(paste("Modèle avec meilleur AUC: ", best_auc))
 # FALSE  TRUE 
 #  4644  3483 
 # 
-#                lda       qda      cart        RF logit_lasso
-# accuracy 0.8750000 0.8743590 0.8467949 0.8653846   0.7967949
-# AUC      0.7578012 0.7639931 0.7485064 0.7814241   0.7097750
-# [1] "Modèle avec meilleur accuracy:  lda"
-# [1] "Modèle avec meilleur AUC:  RF"
+#                lda       qda      cart        RF  Adaboost logit_lasso
+# accuracy 0.8750000 0.8743590 0.8467949 0.8653846 0.8923077   0.7948718
+# AUC      0.7578012 0.7639931 0.7485064 0.7814241 0.8434730   0.7089990
+# [1] "Modèle avec meilleur accuracy:  Adaboost"
+# [1] "Modèle avec meilleur AUC:  Adaboost"
 ```
 
+## courbe ROC
+```{r}
+# Tracé de toutes les courbes ROC sur un seul graphique
+plot(roc_lda, main="Comparative ROC Curves", col="blue", xlim=c(1,0))
+plot(roc_qda, add=TRUE, col="red")
+plot(roc_cart, add=TRUE, col="green")
+plot(roc_rf, add=TRUE, col="purple")
+plot(ROC_adaboost, add=TRUE, col="brown")
+plot(ROC_logit_lasso, add=TRUE, col="orange")
+
+# Ajout d'une légende
+legend('bottomright', legend=c('LDA', 'QDA', 'CART', 'Random Forest', 'AdaBoost', 'Logistic Lasso'), col=c("blue", "red", "green", "purple", "brown", "orange"), lwd=2)
+```
 
