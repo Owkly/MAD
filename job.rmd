@@ -16,9 +16,11 @@ path = file.path(getwd(), "original_data/job_postings.csv")
 data <- read.csv(path, header = TRUE)
 names(data)
 ```
+
 ```{r}
 str(data)
 ```
+
 ```{r}
 head(data)
 ```
@@ -204,6 +206,7 @@ print(paste("NA in closed_time:", na_closed_time))
 print(paste("NA in listed_time:", na_listed_time))
 ```
 closed_time contient des NA
+
 ```{r}
 # On remplace les NA par le 1er janvier 2030
 data6$closed_time[is.na(data6$closed_time)] <- as.POSIXct("2030-01-01 00:00:01", tz = "GMT")
@@ -214,7 +217,7 @@ print(data6)
 # affiche le nombre de na restant
 sum(is.na(data6)==TRUE)
 # Sélectionner les lignes avec des valeurs manquantes
-rows_with_na <- subset(data9, apply(is.na(data9), 1, any))
+rows_with_na <- subset(data6, apply(is.na(data6), 1, any))
 # Afficher les lignes avec des valeurs manquantes
 print(rows_with_na)
 ```
@@ -394,6 +397,7 @@ print(data9)
 ```{r}
 write.csv(data9, "job_processed.csv", row.names = FALSE)
 ```
+
 
 
 

@@ -36,7 +36,7 @@ barplot(apply(data_afc,1,sum)/sum(data_afc),las=3) # selon l'experience
   # apply(data,1,sum)  # somme les les éléments d'une pour chaque ligne
   # apply(data,2,sum)  # somme les éléments d'un colonne pour chaque colonne
 ```
-- Sur le premier barplot la région Ouest et Nord-Est regroupe à eux 2 plus de 50 % des offres sans compter les offres qui est à l'échelle national qui peuvent aussi les inclure. Cela peut être dues à la forte concentration d'industries de haute technologie, en particulier dans des zones telles que la Silicon Valley et Seattle (pour l'Ouest). Et dela présence de grands centres financiers et éducatifs comme New York et Boston (Nord-Est). Cette région est connu pour ses industries financières, ses institutions académiques de premier plan et ses secteurs de la santé et de la biotechnologie, qui attirent un grand nombre de professionnels.
+- Sur le premier barplot la région Ouest et Nord-Est regroupe à eux 2 plus de 50 % des offres sans compter les offres qui est à l'échelle national qui peuvent aussi les inclure. Cela peut être dues à la forte concentration d'industries de haute technologie, en particulier dans des zones telles que la Silicon Valley et Seattle (pour l'Ouest). Et de la présence de grands centres financiers et éducatifs comme New York et Boston (Nord-Est). En effet, cette région est connu pour ses industries financières, ses institutions académiques et de ses secteurs de la santé et de la biotechnologie, qui attirent un grand nombre de professionnels.
 
 - Puis sur Le deuxième barplot on voit que les postes de niveau "Entry level" et "Senior level" sont les plus fréquents, ce qui peut indiquer une demande élevée pour des positions de début de carrière et des rôles plus avancés.
 
