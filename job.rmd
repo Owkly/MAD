@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # 1 Visualisation et prétraitement des données
 
 ```{r}
@@ -8,6 +13,8 @@ library(dplyr)
 library(stringr)
 library(lubridate)
 ```
+
+
 
 ## Chargement des données et visualisation
 
@@ -22,7 +29,7 @@ str(data)
 ```
 
 ```{r}
-head(data)
+# head(data)
 ```
 
 ## Filtrage par type de travail
@@ -47,6 +54,8 @@ print(paste("Lignes après filtrage par type de travail (FULL_TIME) :", filtered
 # Période de paie possible
 print(paste(unique(data$pay_period)))
 ```
+
+
 
 ```{r}
 initial_rows <- nrow(data1)
@@ -106,9 +115,9 @@ data3$salary <- mapply(simplify_salary, data3$med_salary, data3$max_salary, data
 data3$salary <- mapply(convert_salary, data3$salary, data3$pay_period)
 
 # Retirer les lignes où le salaire est inférieur à 1000
-# data3 <- subset(data3, salary >= 1000)
+data3 <- subset(data3, salary >= 1000)
 
-head(data3)
+# head(data3)
 # Suppression des colonnes des salaire max, min et med
 data4 <- select(data3, -c(med_salary, max_salary, min_salary, pay_period))
 ```
@@ -146,8 +155,10 @@ data5$formatted_experience_level[data5$formatted_experience_level == ""] <- "Ent
 ```
 
 
+
+
 ```{r}
-data5
+# data5
 ```
 
 
@@ -210,7 +221,7 @@ closed_time contient des NA
 ```{r}
 # On remplace les NA par le 1er janvier 2030
 data6$closed_time[is.na(data6$closed_time)] <- as.POSIXct("2030-01-01 00:00:01", tz = "GMT")
-print(data6)
+# head(data6)
 ```
 
 ```{r}
@@ -219,7 +230,7 @@ sum(is.na(data6)==TRUE)
 # Sélectionner les lignes avec des valeurs manquantes
 rows_with_na <- subset(data6, apply(is.na(data6), 1, any))
 # Afficher les lignes avec des valeurs manquantes
-print(rows_with_na)
+# print(rows_with_na)
 ```
 
 ```{r}
@@ -386,7 +397,7 @@ data9 <- data8 %>%
 
 # Vérifier les résultats après ajout de la région
 table(data9$region)
-print(data9)
+head(data9)
 
 ```
 
@@ -397,8 +408,6 @@ print(data9)
 ```{r}
 write.csv(data9, "job_processed.csv", row.names = FALSE)
 ```
-
-
 
 
 

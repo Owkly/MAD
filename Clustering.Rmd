@@ -30,7 +30,7 @@ data_quant <- tab %>%
   )
 
 data_quant <- select(data_quant, applies, views, salary, formatted_experience_level, duration_days)
-print(data_quant)
+# print(data_quant)
 
 data_quant_cr <- scale(data_quant,center=TRUE, scale=TRUE)
 dist_data_quant_cr <- dist(data_quant_cr)

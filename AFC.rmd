@@ -19,7 +19,7 @@ data$remote_allowed <- as.factor(data$remote_allowed)
 data$application_type <- as.factor(data$application_type)
 data$sponsored <- as.factor(data$sponsored)
 
-print(data)
+# print(data)
 ```
 
 
@@ -27,7 +27,7 @@ print(data)
 ```{r}
 # Calcul de la table de contingence
 data_afc <- xtabs(~ formatted_experience_level + region, data = data)
-print(data_afc)
+# print(data_afc)
 
 # Barplot montrant la proportion d'offres d'emploi dans chaque district par rapport au total des offres
 barplot(apply(data_afc,2,sum)/sum(data_afc),las=3) # selon le district
@@ -146,7 +146,7 @@ plot(res, selectRow ="cos2 0.8", selectCol ="cos2 0.7")
 ```{r}
 # Calcul de la table de contingence
 data_afc <- xtabs(~ formatted_experience_level + district, data = data)
-print(data_afc)
+# print(data_afc)
 
 # Barplot montrant la proportion d'offres d'emploi dans chaque district par rapport au total des offres
 barplot(apply(data_afc,2,sum)/sum(data_afc),las=3) # selon le district
