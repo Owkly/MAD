@@ -260,3 +260,33 @@ plot(ROC_logit_lasso, add=TRUE, col="orange")
 legend('bottomright', legend=c('LDA', 'QDA', 'CART', 'Random Forest', 'AdaBoost', 'Logistic Lasso'), col=c("blue", "red", "green", "purple", "brown", "orange"), lwd=2)
 ```
 
+## importance des variables
+```{r}
+summary_adaboost <- summary(fit.adaboost, n.trees = B.opt, plotit = FALSE)
+ord_adaboost <- order(summary_adaboost$rel.inf, decreasing = TRUE)
+barplot(summary_adaboost$rel.inf[ord_adaboost], 
+        names.arg = summary_adaboost$var[ord_adaboost], 
+        las = 2, 
+        main = "Importance des variables - AdaBoost", 
+        col = "red")
+```
+
+
+```{r}
+# var_imp_rf <- importance(mod_rf)
+# ord_rf <- order(var_imp_rf, decreasing = TRUE)
+# barplot(var_imp_rf[ord_rf], names.arg=rownames(var_imp_rf)[ord_rf], las=2, main="Variable Importance - Random Forest", col="blue")
+
+```
+
+```{r}
+var_imp_rf_perc <- (var_imp_rf / sum(var_imp_rf)) * 100
+ord_rf <- order(var_imp_rf_perc, decreasing = TRUE)
+barplot(var_imp_rf_perc[ord_rf], 
+        names.arg=rownames(var_imp_rf)[ord_rf], 
+        las=2, 
+        main="Importance des variables - Random Forest", 
+        col="blue")
+
+```
+
